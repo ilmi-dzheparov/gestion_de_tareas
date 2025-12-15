@@ -11,6 +11,7 @@ from django.views.generic import (
     View,
 )
 from .models import Task
+from .forms import TaskForm
 # from .utils import get_count
 
 
@@ -35,6 +36,31 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
 class TaskDetailView(DetailView):
     model = Task
     template_name = 'tasks/task-detail.html'
+
+class TaskCreateView(CreateView):
+    model = Task
+    template_name = 'tasks/task-create.html'
+    form_class = TaskForm
+    success_url = reverse_lazy('taskapp:tasks_list')
+
+class TaskUpdateView(UpdateView):
+    model = Task
+    fields = "name", "description", "cost"
+    template_name = 'tasks/task-edit.html'
+    def get_success_url(self):
+        return reverse_lazy('task_detail', kwargs={'pk': self.object.pk})
+
+class TaskDeleteView(DeleteView):
+    model = Task
+    template_name = 'tasks/task-delete.html'
+    success_url = reverse_lazy('taskapp:tasks_list')
+
+    # def form_valid(self, form):
+    #     success_url = self.get_success_url()
+    #     self.object.archived = True
+    #     self.object.save()
+    #     return HttpResponseRedirect(success_url)
+
 
 # список студентов
 # def students_list(request):

@@ -9,16 +9,16 @@
             <div class="card-body">
                 <h5 class="card-title fw-bold">{{ object.title }}</h5>
                 <p class="card-text">{{ object.description }}</p>
-                <p class="card-text">Start date{{ object.start-date }}</p>
-                <p class="card-text">End date{{ object.end-date }}</p>
+                <p class="card-text">Start date: {{ object.start_date }}</p>
+                <p class="card-text">End date: {{ object.end_date }}</p>
 <!--                <div class="d-flex justify-content-end fw-bold">{{ object.cost }}руб</div>-->
                 <br>
                 <div class="d-flex justify-content-center fw-bold">
-                    <a href="/tasks/{{ object.pk }}/edit" class="btn btn-primary">Edit</a>
+                    <a href="/tasks/{{ object.pk }}/edit/" class="btn btn-primary">Edit</a>
                 </div>
                 <br>
                 <div class="d-flex justify-content-center fw-bold">
-                    <a href="/tasks/{{ object.pk }}/delete" class="btn btn-danger">Eliminar</a>
+                    <a href="/tasks/{{ object.pk }}/delete/" class="btn btn-danger">Eliminar</a>
                 </div>
             </div>
         </div>
