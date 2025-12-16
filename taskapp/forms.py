@@ -3,14 +3,15 @@ from django.contrib.admin.widgets import AdminDateWidget
 from .models import Task, Stage
 
 class TaskForm(forms.ModelForm):
-    end_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True
-    )
-
     class Meta:
         model = Task
         fields = '__all__'
+        widgets = {
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+        labels = {
+            'end_date': 'Fecha de terminación',
+        }
 
     # def form_valid(self, form):
     #     task = form.save(commit=False)
@@ -20,11 +21,13 @@ class TaskForm(forms.ModelForm):
     #     return super().form_valid(form)
 
 class StageForm(forms.ModelForm):
-    end_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        required=True
-    )
 
     class Meta:
         model = Stage
         fields = '__all__'
+        widgets = {
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+        labels = {
+            'end_date': 'Fecha de terminación',
+        }
