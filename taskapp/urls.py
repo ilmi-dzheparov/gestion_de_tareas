@@ -10,6 +10,7 @@ from .views import (
     StageDetailView,
     StageCreateView,
     StageUpdateView,
+    StageDeleteView,
 )
 #
 #
@@ -31,4 +32,6 @@ urlpatterns = [
     path('stages/', StagesListView.as_view(), name='stages_list'),
     path('stages/<int:pk>/', StageDetailView.as_view(), name='stage_detail'),
     path('stages/<int:pk>/edit/', StageUpdateView.as_view(), name='stage_update'),
+    path('stages/new/', StageCreateView.as_view(), name='stage_create'),
+    path('stages/<int:pk>/delete/', StageDeleteView.as_view(), name='stage_delete'),
 ]

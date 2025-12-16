@@ -69,21 +69,32 @@ class StagesListView(ListView): #(PermissionRequiredMixin, ListView):
     # permission_required = ['products.view_product']
 
 class StageDetailView(DetailView):
-    model = Task
+    model = Stage
     template_name = 'stages/stage-detail.html'
 
 class StageCreateView(CreateView):
     model = Stage
-    template_name = 'tasks/stage-create.html'
+    template_name = 'stages/stage-create.html'
     form_class = StageForm
     success_url = reverse_lazy('taskapp:tasks_list')
 
 class StageUpdateView(UpdateView):
     model = Stage
-    # fields = "title", "description", "end_date"
+    fields = "title", "description", "end_date"
     template_name = 'stages/stage-edit.html'
     def get_success_url(self):
         return reverse_lazy('taskapp:stage_detail', kwargs={'pk': self.object.pk})
+
+class StageDeleteView(DeleteView):
+    model = Stage
+    template_name = 'stages/stage-delete.html'
+    success_url = reverse_lazy('taskapp:stages_list')
+
+    # def form_valid(self, form):
+    #     success_url = self.get_success_url()
+    #     self.object.archived = True
+    #     self.object.save()
+    #     return HttpResponseRedirect(success_url)
 
 
 # список студентов

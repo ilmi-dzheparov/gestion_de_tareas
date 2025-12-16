@@ -1,12 +1,12 @@
 {% extends "_base.html" %}
 
 {% block content %}
-<h2 class="fw-bold">Eliminacion de la tarea</h2>
+<h2 class="fw-bold">Удаление etapa</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     <div class="col"></div>
     <div class="col">
         <p>Вы уверены что хотите удалить "{{ object.title }}"?</p>
-        <form method="POST" action="/tasks/{{ object.pk }}/delete/">
+        <form method="POST" action="/stages/{{ object.pk }}/delete/">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-danger">Eliminar</button>
