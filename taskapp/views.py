@@ -10,8 +10,8 @@ from django.views.generic import (
     DeleteView,
     View,
 )
-from .models import Task
-from .forms import TaskForm
+from .models import Task, Stage
+from .forms import TaskForm, StageForm
 # from .utils import get_count
 
 
@@ -45,10 +45,10 @@ class TaskCreateView(CreateView):
 
 class TaskUpdateView(UpdateView):
     model = Task
-    fields = "name", "description", "cost"
+    fields = "title", "description", "end_date"
     template_name = 'tasks/task-edit.html'
     def get_success_url(self):
-        return reverse_lazy('task_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('taskapp:task_detail', kwargs={'pk': self.object.pk})
 
 class TaskDeleteView(DeleteView):
     model = Task
@@ -60,6 +60,30 @@ class TaskDeleteView(DeleteView):
     #     self.object.archived = True
     #     self.object.save()
     #     return HttpResponseRedirect(success_url)
+
+class StagesListView(ListView): #(PermissionRequiredMixin, ListView):
+    model = Stage
+    template_name = ('stages/stages-list.html')
+    context_object_name = 'stages'
+    queryset = Stage.objects.all #(.archived=False)
+    # permission_required = ['products.view_product']
+
+class StageDetailView(DetailView):
+    model = Task
+    template_name = 'stages/stage-detail.html'
+
+class StageCreateView(CreateView):
+    model = Stage
+    template_name = 'tasks/stage-create.html'
+    form_class = StageForm
+    success_url = reverse_lazy('taskapp:tasks_list')
+
+class StageUpdateView(UpdateView):
+    model = Stage
+    # fields = "title", "description", "end_date"
+    template_name = 'stages/stage-edit.html'
+    def get_success_url(self):
+        return reverse_lazy('taskapp:stage_detail', kwargs={'pk': self.object.pk})
 
 
 # список студентов

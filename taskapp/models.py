@@ -44,6 +44,7 @@ class Task(models.Model):
                               verbose_name='tutor')
     course = models.ForeignKey(Course,
                               on_delete=models.PROTECT,
+                              # limit_choices_to={'archived': False},
                               related_name='tasks',
                               verbose_name='course')
 
@@ -57,7 +58,7 @@ class Stage(models.Model):
     status = models.BooleanField()
     task = models.ForeignKey(Task,
                              on_delete=models.CASCADE,
-                             limit_choices_to={'archived': False},
+                             # limit_choices_to={'archived': False},
                              related_name='stages',
-                             verbose_name='etapa')
+                             verbose_name='Tarea')
 

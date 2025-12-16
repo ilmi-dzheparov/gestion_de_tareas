@@ -1,0 +1,29 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<h2 class="fw-bold">Etapa detalles</h2>
+<div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
+    <div class="col"></div>
+    <div class="col">
+        <div class="card border-dark shadow" style="background: #eee">
+            <div class="card-body">
+                <h5 class="card-title fw-bold">Etapa: {{ object.title }}</h5>
+                <p class="card-text">Tarea: {{ object.task.title }}.</p>
+                <p class="card-text">Desde {{ object.start_date|date:"d-m-Y" }} hasta {{ object.end_date|date:"d-m-Y" }}</p>
+<!--                <p class="card-text">-->
+<!--                    {% if object.file %}-->
+<!--                    Файл: <a href="{{ object.file.url }}" target="_blank" >{{ object.file.name }}</a>-->
+<!--                    {% else %}-->
+<!--                <p>No document uploaded.</p>-->
+<!--                {% endif %}-->
+<!--                </p>-->
+                <div class="d-flex justify-content-end fw-bold">Status: {{ object.status }}</div>
+                <div class="d-flex justify-content-center fw-bold">
+                    <a href="/stages/{{ object.pk }}/edit/" class="btn btn-primary">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}
