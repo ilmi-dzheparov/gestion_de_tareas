@@ -3,14 +3,25 @@
 {% block content %}
 <h2 class="fw-bold">Informacion detallada sobre la tarea</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
-    <div class="col"></div>
+<!--    <div class="col"></div>-->
     <div class="col">
         <div class="card border-dark shadow" style="background: #eee">
             <div class="card-body">
                 <h5 class="card-title fw-bold">{{ object.title }}</h5>
                 <p class="card-text">{{ object.description }}</p>
-                <p class="card-text">Start date: {{ object.start_date }}</p>
-                <p class="card-text">End date: {{ object.end_date }}</p>
+                <p class="card-text">Fecha de inicio: {{ object.start_date }}</p>
+                <p class="card-text">Fecha de terminacion: {{ object.end_date }}</p>
+                <ul class="list-group">
+                    {% for stage in object.stages.all %}
+                    <li class="list-group-item list-group-item-light d-flex justify-content-between">
+                        <a href="/stages/{{ stage.pk }}/" class="text-decoration-none link-dark">
+                            Etapa {{ stage.count }}  {{ stage.title }}
+                        </a>
+                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger">Eliminar</a>
+                    </li>
+            {% endfor %}
+        </ul>
+
 <!--                <div class="d-flex justify-content-end fw-bold">{{ object.cost }}руб</div>-->
                 <br>
                 <div class="d-flex justify-content-center fw-bold">
@@ -23,6 +34,6 @@
             </div>
         </div>
     </div>
-    <div class="col"></div>
+<!--    <div class="col"></div>-->
 </div>
 {% endblock %}
