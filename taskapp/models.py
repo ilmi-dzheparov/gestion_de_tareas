@@ -3,6 +3,8 @@ from django.db import models
 
 class Department(models.Model):
     name = models.CharField(max_length=100)
+    def __str__(self):
+        return f"{self.name}"
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
@@ -67,4 +69,7 @@ class Stage(models.Model):
                              # limit_choices_to={'archived': False},
                              related_name='stages',
                              verbose_name='tarea')
+
+    def __str__(self):
+        return f"{self.title} - Task: {self.task}"
 
