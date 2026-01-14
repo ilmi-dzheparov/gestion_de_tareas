@@ -124,6 +124,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/tasks/'
 # LOGOUT_REDIRECT_URL = '/login/'
+AUTH_USER_MODEL = 'myauth.User'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
