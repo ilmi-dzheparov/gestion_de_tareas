@@ -43,6 +43,17 @@ class TaskCreateView(CreateView):
     form_class = TaskForm
     success_url = reverse_lazy('taskapp:tasks_list')
 
+    def get_form_kwargs(self):
+        """Passes the current user's group to the form."""
+        kwargs = super(TaskCreateView, self).get_form_kwargs()
+
+        # Get the group of the currently logged-in user (assuming the user creating
+        # the task has a 'group' Foreign Key relationship)
+        user_group = self.request.user.group
+
+        kwargs['user_group'] = user_group
+        return kwargs
+
 class TaskUpdateView(UpdateView):
     model = Task
     fields = "title", "description", "end_date"

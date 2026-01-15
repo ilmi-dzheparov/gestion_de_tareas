@@ -1,10 +1,16 @@
 from django.contrib import admin
-from .models import Department, Course, Task, Stage
+from .models import Department, Course, Task, Stage, Group
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'department', 'year')
+    list_filter = ('department', 'year')
+    search_fields = ('department__name', 'year')
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):

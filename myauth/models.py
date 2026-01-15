@@ -26,8 +26,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
     birthdate = models.DateField(null=True, blank=True)
-    department = models.ForeignKey(
-        'taskapp.Department',
+    group = models.ForeignKey(
+        'taskapp.Group',
         on_delete=models.PROTECT,
         related_name='users',
         null=True, # Optional: helps if you create a superuser without a department

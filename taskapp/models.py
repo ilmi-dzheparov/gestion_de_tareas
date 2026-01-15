@@ -4,16 +4,24 @@ from django.utils import timezone
 
 
 class Department(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
+    name_short = models.CharField(max_length=100, unique=True)
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name_short}"
+
+class Group(models.Model):
+    department = models.ForeignKey(Department, on_delete=models.PROTECT)
+    year = models.PositiveIntegerField()
+    def __str__(self):
+        return f"{self.department}-{self.year}"
 
 class Course(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
+    name_short = models.CharField(max_length=100, unique=True)
     department = models.ForeignKey(Department, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name_short}"
 
 
 class Task(models.Model):
