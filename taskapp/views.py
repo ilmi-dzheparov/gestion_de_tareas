@@ -36,6 +36,18 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
 class TaskDetailView(DetailView):
     model = Task
     template_name = 'tasks/task-detail.html'
+    form_class = TaskForm
+
+    def get_form_kwargs(self):
+        """Passes the current user's group to the form."""
+        kwargs = super(TaskDetailView, self).get_form_kwargs()
+
+        # Get the group of the currently logged-in user (assuming the user creating
+        # the task has a 'group' Foreign Key relationship)
+        user_group = self.request.user.group
+
+        kwargs['user_group'] = user_group
+        return kwargs
 
 class TaskCreateView(CreateView):
     model = Task
@@ -56,10 +68,23 @@ class TaskCreateView(CreateView):
 
 class TaskUpdateView(UpdateView):
     model = Task
-    fields = "title", "description", "end_date"
+    # fields = "title", "description", "end_date"
     template_name = 'tasks/task-edit.html'
+    form_class = TaskForm
+
     def get_success_url(self):
         return reverse_lazy('taskapp:task_detail', kwargs={'pk': self.object.pk})
+
+    def get_form_kwargs(self):
+        """Passes the current user's group to the form."""
+        kwargs = super(TaskUpdateView, self).get_form_kwargs()
+
+        # Get the group of the currently logged-in user (assuming the user creating
+        # the task has a 'group' Foreign Key relationship)
+        user_group = self.request.user.group
+
+        kwargs['user_group'] = user_group
+        return kwargs
 
 class TaskDeleteView(DeleteView):
     model = Task

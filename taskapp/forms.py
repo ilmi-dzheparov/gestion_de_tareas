@@ -13,7 +13,10 @@ class TaskForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 4}),
             # --- Widget para ManyToManyField ---
             # 'students': forms.CheckboxSelectMultiple(),
-            'students': forms.SelectMultiple(attrs={'class': 'select2-multiple'}),
+            # 'students': forms.SelectMultiple(attrs={'class': 'select2-multiple'}),
+            'students': forms.CheckboxSelectMultiple(
+                attrs={'class': 'students-columns'}
+            ),
         }
         labels = {
             'end_date': 'Fecha de terminación',

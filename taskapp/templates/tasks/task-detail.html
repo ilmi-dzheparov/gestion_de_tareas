@@ -19,8 +19,21 @@
                         </a>
                         <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger">Eliminar</a>
                     </li>
-            {% endfor %}
-        </ul>
+                    {% endfor %}
+                </ul>
+                <p class="card-text">Participants:</p>
+<!--                <ul class="list-group">-->
+                 <p>
+                    {% for student in object.students.all %}
+<!--                    <li class="list-group-item list-group-item-light d-flex justify-content-between">-->
+                         | <strong>{{ student }}</strong> |
+
+<!--                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger">Eliminar</a>-->
+<!--                    </li>-->
+                     {% endfor %}
+                 </p>
+
+<!--                </ul>-->
 
 <!--                <div class="d-flex justify-content-end fw-bold">{{ object.cost }}руб</div>-->
                 <br>

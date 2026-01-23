@@ -40,3 +40,13 @@ body {
     float: left;
     font-size: 9rem;
 }
+
+.students-columns {
+    columns: 5;        /* ← количество колонок */
+    column-gap: 30px;
+}
+
+.students-columns label {
+    display: block;
+    break-inside: avoid;
+}
