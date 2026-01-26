@@ -83,5 +83,17 @@
            $('.select2-multiple').select2();
        });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var studentsDiv = document.getElementById('id_students');
+
+        if (studentsDiv) {
+            studentsDiv.style.display = 'grid';
+            studentsDiv.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            studentsDiv.style.gap = '10px';
+        }
+    });
+</script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <h2 class="fw-bold">Creacion de tarea</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     <div class="col"></div>
-    <div class="col">
+    <div class="col-12">
         <form method="POST" action="/tasks/new/">
             {% csrf_token %}
             {{ form.as_p }}

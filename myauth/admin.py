@@ -32,8 +32,8 @@ class MyUserAdmin(UserAdmin):
     form = MyUserChangeForm
 
     # Fields to display in the list view
-    list_display = ("email", "name", "last_name", "is_student", "is_tutor", "is_staff")
-    list_filter = ("is_student", "is_tutor", "is_staff", "is_active")
+    list_display = ("email", "name", "last_name", "is_student", "group", "is_tutor", "is_staff")
+    list_filter = ("is_student", "is_tutor", "is_staff", "is_active", "group")
     ordering = ("email",)
 
     # Forms for editing and creating students
@@ -53,7 +53,7 @@ class MyUserAdmin(UserAdmin):
             'email', 'password1', 'password2', 'dni', 'name', 'last_name', 'group', 'is_student', 'is_tutor')
         }),
     )
-    search_fields = ("email", "name", "last_name", "dni")
+    search_fields = ("email", "name", "last_name", "dni", "group")
     readonly_fields = ("date_joined", "last_login")
 
     filter_horizontal = ('groups', 'user_permissions',)

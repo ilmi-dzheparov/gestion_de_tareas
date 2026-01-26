@@ -4,6 +4,22 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class CustomCheckboxWidget(forms.CheckboxSelectMultiple):
+    template_name = "django/forms/widgets/checkbox_select.html"  # Use the custom template
+
+    # def __init__(self, *args, **kwargs):
+    #     kwargs.setdefault('attrs', {})['class'] = 'students-columns'  # Add your custom class
+    #     super().__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None, renderer=None):
+        # Call the parent render method to get the default rendering
+        output = super().render(name, value, attrs, renderer)
+
+        # Wrap the output with a div that has the id 'id_students'
+        wrapper = f'<div id="id_students" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">{output}</div>'
+
+        return wrapper
+
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
@@ -12,11 +28,11 @@ class TaskForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 4}),
             # --- Widget para ManyToManyField ---
-            # 'students': forms.CheckboxSelectMultiple(),
+            'students': forms.CheckboxSelectMultiple(),
             # 'students': forms.SelectMultiple(attrs={'class': 'select2-multiple'}),
-            'students': forms.CheckboxSelectMultiple(
-                attrs={'class': 'students-columns'}
-            ),
+            # 'students': forms.CheckboxSelectMultiple(
+            #     attrs={'class': 'students-columns'}
+            # ),
         }
         labels = {
             'end_date': 'Fecha de terminación',
