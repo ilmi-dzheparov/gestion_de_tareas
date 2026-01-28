@@ -74,36 +74,20 @@ class Stage(models.Model):
 
     class Meta:
         # Ensures stages appear in order (1, 2, 3...) in the admin and queries
-        ordering = ['count']
+        ordering = ['task', 'count']
 
     def __str__(self):
         return f"{self.title} - Task: {self.task}"
 
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Solo se ejecuta al crear una nueva etapa
+            last_stage = Stage.objects.filter(task=self.task).order_by('-count').first()
+            if last_stage:
+                self.count = last_stage.count + 1
+            else:
+                self.count = 1
+        super().save(*args, **kwargs)
+
     @property
     def is_overdue(self):
         return not self.status and self.end_date < timezone.now()
-
-    # class Student(models.Model):
-    #     dni = models.CharField(max_length=10)
-    #     name = models.CharField(max_length=100)
-    #     last_name_1 = models.CharField(max_length=100)
-    #     last_name_2 = models.CharField(max_length=100)
-    #     email = models.EmailField()
-    #     birthdate = models.DateField()
-    #     department = models.ForeignKey(Department,
-    #                                    on_delete=models.PROTECT,
-    #                                    related_name='students')
-    #
-    #
-    #     def __str__(self):
-    #         return f"{self.last_name_1} {self.last_name_2}, {self.name}"
-
-    # class Tutor(models.Model):
-    #     name = models.CharField(max_length=100)
-    #     last_name_1 = models.CharField(max_length=100)
-    #     last_name_2 = models.CharField(max_length=100)
-    #     email = models.EmailField(null=True, blank=True)
-    #
-    #     def __str__(self):
-    #         return f"{self.last_name_1} {self.last_name_2}, {self.name}"
-

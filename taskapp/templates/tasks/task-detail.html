@@ -11,13 +11,23 @@
                 <p class="card-text">{{ object.description }}</p>
                 <p class="card-text">Fecha de inicio: {{ object.start_date }}</p>
                 <p class="card-text">Fecha de terminacion: {{ object.end_date }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="card-text">Etapas</p>
+                    <div class="d-flex justify-content-center fw-bold mb-1">
+                        <a href="/stages/new/?task={{ task.id }}" class="btn btn-success my-1 btn-sm">Crear etapa</a>
+                    </div>
+                </div>
+
                 <ul class="list-group">
                     {% for stage in object.stages.all %}
-                    <li class="list-group-item list-group-item-light d-flex justify-content-between">
-                        <a href="/stages/{{ stage.pk }}/" class="text-decoration-none link-dark">
-                            Etapa {{ stage.count }}  {{ stage.title }}
+                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
+                        <a href="/stages/{{ stage.pk }}/" class="text-decoration-none link-dark shadow-sm rounded p-1"
+                        style="transition: transform 0.2s; display: inline-block;"
+                        onmouseover="this.style.transform='scale(1.1)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                            Etapa {{ stage.count }}: {{ stage.title }}
                         </a>
-                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger">Eliminar</a>
+                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger btn-sm">Eliminar</a>
                     </li>
                     {% endfor %}
                 </ul>
@@ -37,9 +47,7 @@
 
 <!--                <div class="d-flex justify-content-end fw-bold">{{ object.cost }}руб</div>-->
                 <br>
-                <div class="d-flex justify-content-center fw-bold mb-1">
-                    <a href="/stages/new/?task={{ task.id }}" class="btn btn-success p-2">Crear etapa</a>
-                </div>
+
                 <div class="d-flex justify-content-center fw-bold mx-1">
                     <a href="/tasks/{{ object.pk }}/edit/" class="btn btn-primary mx-1">Editar</a>
                     <a href="/tasks/{{ object.pk }}/delete/" class="btn btn-danger mx-1">Eliminar</a>

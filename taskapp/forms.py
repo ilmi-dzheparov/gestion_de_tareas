@@ -54,20 +54,6 @@ class TaskForm(forms.ModelForm):
             # Fallback for users without a group (e.g., superusers)
             self.fields['students'].queryset = User.objects.all()
 
-    # Opcional: Puedes personalizar el queryset aquí para asegurarte de que solo
-    # se muestren los usuarios que son estudiantes, aunque limit_choices_to
-    # en el modelo ya debería ocuparse de ello.
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['assigned_to'].queryset = settings.AUTH_USER_MODEL.objects.filter(is_student=True)
-
-
-    # def form_valid(self, form):
-    #     task = form.save(commit=False)
-    #     if 'file' in self.request.FILES:
-    #         contract.file = self.request.FILES['file']
-    #     contract.save()
-    #     return super().form_valid(form)
 
 class StageForm(forms.ModelForm):
     def __init__(self, *args, fixed_task=None, **kwargs):
@@ -81,7 +67,8 @@ class StageForm(forms.ModelForm):
 
             # 🎯 ФИЛЬТРУЕМ ответственных
             self.fields['student'].queryset = fixed_task.students.all()
-
+        elif self.instance and self.instance.pk and self.instance.task:
+            self.fields['student'].queryset = self.instance.task.students.all()
         else:
             # Если этап создаётся отдельно — показываем всех студентов
             self.fields['student'].queryset = User.objects.all()
@@ -89,6 +76,7 @@ class StageForm(forms.ModelForm):
     class Meta:
         model = Stage
         fields = '__all__'
+        exclude = ['count']
         widgets = {
             'end_date': forms.DateInput(attrs={'type': 'date'}),
         }

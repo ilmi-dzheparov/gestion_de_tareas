@@ -136,8 +136,23 @@ class StageCreateView(CreateView):
 
 class StageUpdateView(UpdateView):
     model = Stage
-    fields = "title", "description", "end_date"
+    # fields = "title", "description", "end_date", "status", "student"
+    form_class = StageForm
     template_name = 'stages/stage-edit.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Obtenemos la etapa actual y su tarea vinculada
+        current_stage = self.get_object()
+        kwargs['fixed_task'] = current_stage.task  # Esto activa tu lógica de filtrado en el form
+
+        return kwargs
+
+    def form_valid(self, form):
+        # No necesitas el bloque de request.GET.get('task')
+        # porque la tarea ya está asociada a esta instancia de 'Stage'
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse_lazy('taskapp:stage_detail', kwargs={'pk': self.object.pk})
 
