@@ -1,5 +1,6 @@
 from django import forms
 from .models import Task, Stage
+from myauth.models import User
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -69,6 +70,21 @@ class TaskForm(forms.ModelForm):
     #     return super().form_valid(form)
 
 class StageForm(forms.ModelForm):
+    def __init__(self, *args, fixed_task=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Если этап создаётся из задачи
+        if fixed_task:
+            # 🔒 фиксируем задачу
+            self.fields['task'].initial = fixed_task
+            self.fields['task'].widget = forms.HiddenInput()
+
+            # 🎯 ФИЛЬТРУЕМ ответственных
+            self.fields['student'].queryset = fixed_task.students.all()
+
+        else:
+            # Если этап создаётся отдельно — показываем всех студентов
+            self.fields['student'].queryset = User.objects.all()
 
     class Meta:
         model = Stage
