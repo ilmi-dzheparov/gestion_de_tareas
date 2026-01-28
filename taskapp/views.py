@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponseRedirect, HttpResponse, request
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView,
@@ -113,6 +113,26 @@ class StageCreateView(CreateView):
     template_name = 'stages/stage-create.html'
     form_class = StageForm
     success_url = reverse_lazy('taskapp:tasks_list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        task_id = self.request.GET.get('task')
+        if task_id:
+            task = get_object_or_404(Task, id=task_id)
+            kwargs['fixed_task'] = task
+
+        return kwargs
+
+    def form_valid(self, form):
+        stage = form.save(commit=False)
+
+        task_id = self.request.GET.get('task')
+        if task_id:
+            stage.task = get_object_or_404(Task, id=task_id)
+
+        stage.save()
+        return super().form_valid(form)
 
 class StageUpdateView(UpdateView):
     model = Stage
