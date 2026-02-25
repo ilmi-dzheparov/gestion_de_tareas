@@ -1,5 +1,5 @@
 from django import forms
-from .models import Task, Stage
+from .models import Task, Stage, TaskFile
 from myauth.models import User
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -54,6 +54,13 @@ class TaskForm(forms.ModelForm):
             # Fallback for users without a group (e.g., superusers)
             self.fields['students'].queryset = User.objects.all()
 
+# Создаем набор форм для файлов
+TaskFileFormSet = forms.inlineformset_factory(
+    Task, TaskFile,
+    fields=('file',),
+    extra=3,        # сколько пустых полей для файлов показать сразу
+    can_delete=True # позволит удалять уже загруженные файлы при редактировании
+)
 
 class StageForm(forms.ModelForm):
     def __init__(self, *args, fixed_task=None, **kwargs):

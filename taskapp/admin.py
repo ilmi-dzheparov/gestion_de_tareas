@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Department, Course, Task, Stage, Group
+from .models import Department, Course, Task, Stage, Group, TaskFile
+
+
+class TaskFileInline(admin.TabularInline):
+    model = TaskFile
+    extra = 1  # количество пустых полей для новых файлов по умолчанию
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
@@ -30,7 +35,7 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
     # Filter students/tutors in the many-to-many/foreign key selectors
     filter_horizontal = ('students',)
-    inlines = [StageInline]
+    inlines = [StageInline, TaskFileInline]
 
 @admin.register(Stage)
 class StageAdmin(admin.ModelAdmin):

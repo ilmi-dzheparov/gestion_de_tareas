@@ -8,6 +8,16 @@
         <form method="POST" action="/tasks/new/">
             {% csrf_token %}
             {{ form.as_p }}
+            <fieldset>
+                <legend>Прикрепить файлы</legend>
+                {{ file_formset.management_form }}
+                {% for file_form in file_formset %}
+                    <div class="file-row">
+                        {{ file_form.file }}
+                        {{ file_form.errors }}
+                    </div>
+                {% endfor %}
+            </fieldset>
             <button type="submit" class="btn btn-primary">Crear</button>
         </form>
     </div>

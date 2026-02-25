@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'taskapp.apps.TaskappConfig',
     'myauth.apps.MyauthConfig',
+    'commentapp.apps.CommentappConfig',
 ]
 
 MIDDLEWARE = [
@@ -125,6 +126,13 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/tasks/'
 # LOGOUT_REDIRECT_URL = '/login/'
 AUTH_USER_MODEL = 'myauth.User'
+
+# Путь в браузере (например, http://127.0.0.1...)
+MEDIA_URL = '/media/'
+
+# Папка на диске, где будут лежать файлы
+# Если используете современный Django (Pathlib):
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

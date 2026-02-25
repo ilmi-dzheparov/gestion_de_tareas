@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse, request
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
@@ -10,8 +11,11 @@ from django.views.generic import (
     DeleteView,
     View,
 )
+from django.views.generic.edit import FormMixin
+
 from .models import Task, Stage
-from .forms import TaskForm, StageForm
+from .forms import TaskForm, StageForm, TaskFileFormSet
+from commentapp.models import CommentTask, CommentStage
 # from .utils import get_count
 
 
@@ -33,7 +37,7 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
     queryset = Task.objects.all #(.archived=False)
     # permission_required = ['products.view_product']
 
-class TaskDetailView(DetailView):
+class TaskDetailView(FormMixin, DetailView):
     model = Task
     template_name = 'tasks/task-detail.html'
     form_class = TaskForm
@@ -48,6 +52,13 @@ class TaskDetailView(DetailView):
 
         kwargs['user_group'] = user_group
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Traemos la lista de comentarios para ESTA tarea
+        context['comments'] = (CommentTask.objects.filter(task=self.object)
+                               .select_related('user').order_by('-uploaded_at'))
+        return context
 
 class TaskCreateView(CreateView):
     model = Task
@@ -65,6 +76,34 @@ class TaskCreateView(CreateView):
 
         kwargs['user_group'] = user_group
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        """Добавляет formset файлов в контекст шаблона."""
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            # Если отправка формы — заполняем данными
+            data['file_formset'] = TaskFileFormSet(self.request.POST, self.request.FILES)
+        else:
+            # Если открытие страницы — пустая форма
+            data['file_formset'] = TaskFileFormSet()
+        return data
+
+    def form_valid(self, form):
+        """Сохраняет задачу и привязанные к ней файлы."""
+        context = self.get_context_data()
+        file_formset = context['file_formset']
+
+        # Используем транзакцию: если файлы не валидны, задача не создастся
+        with transaction.atomic():
+            self.object = form.save()
+            if file_formset.is_valid():
+                file_formset.instance = self.object
+                file_formset.save()
+            else:
+                # Если файлы не валидны — перерисовываем страницу с ошибками
+                return self.render_to_response(self.get_context_data(form=form))
+
+        return super().form_valid(form)
 
 class TaskUpdateView(UpdateView):
     model = Task

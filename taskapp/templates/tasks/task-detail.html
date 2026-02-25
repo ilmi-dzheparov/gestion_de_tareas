@@ -14,7 +14,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <p class="card-text">Etapas</p>
                     <div class="d-flex justify-content-center fw-bold mb-1">
-                        <a href="/stages/new/?task={{ task.id }}" class="btn btn-success my-1 btn-sm">Crear etapa</a>
+                        <a href="/stages/new/?task={{ object.id }}" class="btn btn-success my-1 btn-sm">Crear etapa</a>
                     </div>
                 </div>
 
@@ -59,6 +59,33 @@
             </div>
         </div>
     </div>
+    <section class="col">
+        <div class="card border-dark shadow" style="background: #eee">
+             <div class="card-body">
+
+                <h5 class="card-title fw-bold">Historial de Comentarios</h5>
+                {% for comment in comments %}
+                    <div class="card border-dark shadow" style="background: #eee">
+                        <div class="card border-dark shadow" style="background: #eee">
+                            <strong>{{ comment.user }}</strong>
+                            <small>({{ comment.uploaded_at|date:"d/m/Y H:i" }})</small>
+                            <p>{{ comment.comment|linebreaks }}</p>
+                            <div class="d-flex justify-content-center fw-bold mx-1">
+                                <a href="//{{ .pk }}/edit/" class="btn btn-primary mx-1">Editar</a>
+                                <a href="{% url 'commentapp:comment_delete' pk=comment.pk %}" class="btn btn-danger mx-1">Eliminar</a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No hay comentarios para esta tarea.</p>
+                {% endfor %}
+                 <div class="d-flex justify-content-center fw-bold mb-1">
+                        <a href="{% url 'commentapp:comment_create' %}?task={{ object.id }}" class="btn btn-success my-1 btn-sm">Añadir comentario</a>
+                 </div>
+             </div>
+        </div>
+    </section>
 <!--    <div class="col"></div>-->
 </div>
+
 {% endblock %}

@@ -51,6 +51,21 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.title}"
 
+class TaskFile(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name='files',
+        verbose_name='tarea'
+    )
+    file = models.FileField(
+        upload_to='tasks/attachments/%Y/%m/%d/',
+        verbose_name='archivo'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Archivo para {self.task.title}"
 
 class Stage(models.Model):
     count = models.PositiveIntegerField(verbose_name='orden')
@@ -91,3 +106,19 @@ class Stage(models.Model):
     @property
     def is_overdue(self):
         return not self.status and self.end_date < timezone.now()
+
+class StageFile(models.Model):
+    stage = models.ForeignKey(
+        Stage,
+        on_delete=models.CASCADE,
+        related_name='files',
+        verbose_name='etapa'
+    )
+    file = models.FileField(
+        upload_to='tasks/attachments/%Y/%m/%d/',
+        verbose_name='archivo'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Archivo para {self.stage.title}"
