@@ -18,7 +18,7 @@ class CommentTask(models.Model):
         verbose_name='usuario'
     )
     comment = models.TextField(null=False, blank=True, verbose_name='comentario')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Comentario: {self.comment[:20]}... para {self.task.title}"
@@ -38,7 +38,8 @@ class CommentStage(models.Model):
         verbose_name='usuario'
     )
     comment = models.TextField(null=False, blank=True, verbose_name='comentario')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+
         return f"Comentario: {self.comment[:20]}... para {self.stage.title}"

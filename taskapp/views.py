@@ -147,6 +147,13 @@ class StageDetailView(DetailView):
     model = Stage
     template_name = 'stages/stage-detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Traemos la lista de comentarios para ESTA tarea
+        context['comments'] = (CommentStage.objects.filter(stage=self.object)
+                               .select_related('user').order_by('-uploaded_at'))
+        return context
+
 class StageCreateView(CreateView):
     model = Stage
     template_name = 'stages/stage-create.html'

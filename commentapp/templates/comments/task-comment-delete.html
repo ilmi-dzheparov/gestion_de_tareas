@@ -1,0 +1,21 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<h2 class="fw-bold">Eliminacion del comentario</h2>
+<div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
+    <div class="col"></div>
+    <div class="col">
+        <p>Estas seguro de que quires eliminar "{{ object.title }}"?</p>
+        <div class="alert alert-warning border-dark">
+            "{{ object.comment|truncatechars:50 }}"
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="javascript:history.back()" class="btn btn-secondary px-4">Cancelar</a>
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}

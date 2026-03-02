@@ -49,8 +49,8 @@
                 <br>
 
                 <div class="d-flex justify-content-center fw-bold mx-1">
-                    <a href="/tasks/{{ object.pk }}/edit/" class="btn btn-primary mx-1">Editar</a>
-                    <a href="/tasks/{{ object.pk }}/delete/" class="btn btn-danger mx-1">Eliminar</a>
+                    <a href="/tasks/{{ object.pk }}/edit/" class="btn btn-primary mx-1 btn-sm">Editar</a>
+                    <a href="/tasks/{{ object.pk }}/delete/" class="btn btn-danger mx-1 btn-sm">Eliminar</a>
                 </div>
 <!--                <br>-->
 <!--                <div class="d-flex justify-content-center fw-bold mx-1">-->
@@ -65,22 +65,22 @@
 
                 <h5 class="card-title fw-bold">Historial de Comentarios</h5>
                 {% for comment in comments %}
-                    <div class="card border-dark shadow" style="background: #eee">
-                        <div class="card border-dark shadow" style="background: #eee">
-                            <strong>{{ comment.user }}</strong>
-                            <small>({{ comment.uploaded_at|date:"d/m/Y H:i" }})</small>
-                            <p>{{ comment.comment|linebreaks }}</p>
-                            <div class="d-flex justify-content-center fw-bold mx-1">
-                                <a href="//{{ .pk }}/edit/" class="btn btn-primary mx-1">Editar</a>
-                                <a href="{% url 'commentapp:comment_delete' pk=comment.pk %}" class="btn btn-danger mx-1">Eliminar</a>
-                            </div>
+
+                    <div class="card border-dark shadow p-2 mb-1" style="background: #eee">
+                        <strong>{{ comment.user }}</strong>
+                        <small>({{ comment.uploaded_at|date:"d/m/Y H:i" }})</small>
+                        <p>{{ comment.comment|linebreaks }}</p>
+                        <div class="d-flex justify-content-center fw-bold mx-1">
+                            <a href="{% url 'commentapp:task_comment_edit' pk=comment.pk %}" class="btn btn-primary mx-1 btn-sm">Editar</a>
+                            <a href="{% url 'commentapp:task_comment_delete' pk=comment.pk %}" class="btn btn-danger mx-1 btn-sm">Eliminar</a>
                         </div>
                     </div>
+
                 {% empty %}
                     <p>No hay comentarios para esta tarea.</p>
                 {% endfor %}
                  <div class="d-flex justify-content-center fw-bold mb-1">
-                        <a href="{% url 'commentapp:comment_create' %}?task={{ object.id }}" class="btn btn-success my-1 btn-sm">Añadir comentario</a>
+                        <a href="{% url 'commentapp:task_comment_create' %}?task={{ object.id }}" class="btn btn-success my-1 btn-sm">Añadir comentario</a>
                  </div>
              </div>
         </div>
