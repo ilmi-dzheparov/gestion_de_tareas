@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from .views import task_index
 from .views import (
     TasksListView,
@@ -11,6 +12,7 @@ from .views import (
     StageCreateView,
     StageUpdateView,
     StageDeleteView,
+    StatisticView,
 )
 #
 #
@@ -23,7 +25,8 @@ from .views import (
 app_name = "taskapp"
 
 urlpatterns = [
-    path("", task_index, name="index"),
+    path('', RedirectView.as_view(url='/index/'), name='root_redirect'),
+    path('index/', StatisticView.as_view(), name='main'),
     path('tasks/', TasksListView.as_view(), name='tasks_list'),
     path('tasks/new/', TaskCreateView.as_view(), name='task_create'),
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task_detail'),

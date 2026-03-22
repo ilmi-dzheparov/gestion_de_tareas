@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.db.models import Q
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse, request
 from django.shortcuts import render, get_object_or_404
@@ -19,22 +20,39 @@ from commentapp.models import CommentTask, CommentStage
 # from .utils import get_count
 
 
-# class StatisticView(View):
-#     def get(self, request):
-#         context = {
-#             'products_count': get_count(Product),
-#         }
-#         return render(request, 'products/index.html', context=context)
-
 def task_index(request):
     return HttpResponse("Hello world")
 
+class StatisticView(View):
+    def get(self, request):
+        user = request.user
+
+        # Si el usuario es TUTOR, contamos donde sea el tutor asignado
+        if user.is_tutor:
+            tasks = Task.objects.filter(tutor=user)
+            stages = Stage.objects.filter(task__tutor=user)
+        # Si el usuario es ALUMNO, contamos donde esté en la lista de alumnos
+        else:
+            tasks = Task.objects.filter(students=user)
+            stages = Stage.objects.filter(student=user)
+        context = {
+            'tasks_count': tasks.count(),
+            'stages_count': stages.count(),
+        }
+        return render(request, 'tasks/index.html', context=context)
 
 class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
     model = Task
     template_name = 'tasks/tasks-list.html'
     context_object_name = 'tasks'
-    queryset = Task.objects.all #(.archived=False)
+
+    def get_queryset(self):
+        user = self.request.user
+        # Filtramos: tareas donde es tutor O tareas donde está en el ManyToMany de alumnos
+        return Task.objects.filter(
+            Q(tutor=user) | Q(students=user)
+        ).distinct()
+    #(.archived=False)
     # permission_required = ['products.view_product']
 
 class TaskDetailView(FormMixin, DetailView):
@@ -140,7 +158,14 @@ class StagesListView(ListView): #(PermissionRequiredMixin, ListView):
     model = Stage
     template_name = ('stages/stages-list.html')
     context_object_name = 'stages'
-    queryset = Stage.objects.all #(.archived=False)
+
+    def get_queryset(self):
+        user = self.request.user
+        # Filtramos: stages donde es tutor O stages donde es alumno
+        return Stage.objects.filter(
+            Q(task__tutor=user) | Q(student=user)
+        ).distinct()
+     #(.archived=False)
     # permission_required = ['products.view_product']
 
 class StageDetailView(DetailView):

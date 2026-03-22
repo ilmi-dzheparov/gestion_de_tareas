@@ -1,8 +1,13 @@
+from os import path
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
 
 from .models import User
+from .forms import CSVImportForm
 
 
 # 1. Create a form for the "Add User" page
@@ -57,3 +62,19 @@ class MyUserAdmin(UserAdmin):
     readonly_fields = ("date_joined", "last_login")
 
     filter_horizontal = ('groups', 'user_permissions',)
+
+class UserAdmin(admin.ModelAdmin, ExportAsCSVMixin):
+    def import_csv(self, request: HttpRequest) -> HttpResponse:
+        form = CSVImportForm()
+        context = { "form": form, }
+        return render(request, "admin/csv_form.html", context)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        new_urls = [
+            path(
+                "import_users_csv/",
+                self.import_csv,
+                name='import_users_csv'
+            )
+        ]
