@@ -1,0 +1,4 @@
+title,description,end_date,tutor_email,course,student_emails
+"Project Alpha","First big task","2026-05-01 23:59","tutor@example.com","Python Basic","s1@example.com,s2@example.com"
+"Final Exam","Theory part","2026-06-15 10:00","tutor@example.com","Data Science","s3@example.com,s4@example.com,s1@example.com"
+"Lab Work 1","Circuit design","2026-04-20 18:00","profe@example.com","Electronics","s2@example.com"

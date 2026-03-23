@@ -1,0 +1,11 @@
+email,name,last_name,dni,birthdate,is_student,is_tutor,group
+student1@example.com,Ivan,Ivanov,12345678A,2005-05-15,True,False,1
+student2@example.com,Maria,Petrova,23456789B,2004-11-20,True,False,1
+student3@example.com,Alex,Sidorov,34567890C,2005-01-10,True,False,2
+student4@example.com,Elena,Kozlova,45678901D,2004-03-30,True,False,2
+student5@example.com,Dmitry,Morozov,56789012E,2005-07-22,True,False,1
+student6@example.com,Anna,Volkova,67890123F,2004-09-05,True,False,3
+student7@example.com,Sergey,Lebedev,78901234G,2005-12-12,True,False,3
+student8@example.com,Olga,Semenova,89012345H,2004-06-18,True,False,2
+student9@example.com,Pavel,Pavlov,90123456I,2005-02-25,True,False,1
+student10@example.com,Natalia,Orlova,01234567J,2004-08-14,True,False,3
