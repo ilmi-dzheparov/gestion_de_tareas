@@ -19,9 +19,11 @@
 <!--                {% endif %}-->
 <!--                </p>-->
                 <div class="d-flex justify-content-end fw-bold">Status: {{ object.status }}</div>
+                {% if request.user.is_student %}
                 <div class="d-flex justify-content-center fw-bold">
                     <a href="/stages/{{ object.pk }}/edit/" class="btn btn-primary">Editar</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

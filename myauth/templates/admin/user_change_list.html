@@ -1,0 +1,14 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+    <div class="csv-import-block" style="margin-bottom: 10px; background: #f8f8f8; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        <form action="import_users_csv/" method="POST" enctype="multipart/form-data" style="display: flex; align-items: center; gap: 10px;">
+            {% csrf_token %}
+            <strong style="color: #666;">Importar usuarios (CSV):</strong>
+            {{ csv_import_form.csv_file }}
+            <button type="submit" class="button" style="background: #417690; padding: 10px;">Upload and Sync</button>
+        </form>
+    </div>
+
+    {{ block.super }}
+{% endblock %}

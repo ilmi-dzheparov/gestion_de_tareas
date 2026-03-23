@@ -3,9 +3,11 @@
 {% block content %}
 <h2 class="fw-bold">Tareas</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
+    {% if request.user.is_student %}
     <div class="hstack gap-3 pb-4">
         <a href="/tasks/new" class="btn btn-success p-2">Crear tarea</a>
     </div>
+    {% endif %}
     <div class="col">
         <ul class="list-group align-items-center">
             {% for task in tasks %}
@@ -16,7 +18,9 @@
                 onmouseout="this.style.transform='scale(1)'">
                     {{ task.title }}
                 </a>
+                {% if request.user.is_student %}
                 <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger btn-sm ms-5">Eliminar</a>
+                {% endif %}
             </li>
             {% endfor %}
         </ul>
