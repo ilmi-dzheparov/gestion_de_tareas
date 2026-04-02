@@ -39,17 +39,10 @@
 <!--                <ul class="list-group">-->
                  <p>
                     {% for student in object.students.all %}
-<!--                    <li class="list-group-item list-group-item-light d-flex justify-content-between">-->
                          | <strong>{{ student }}</strong> |
-
-<!--                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger">Eliminar</a>-->
-<!--                    </li>-->
                      {% endfor %}
                  </p>
 
-<!--                </ul>-->
-
-<!--                <div class="d-flex justify-content-end fw-bold">{{ object.cost }}руб</div>-->
                 <br>
                 {% if request.user.is_student %}
                 <div class="d-flex justify-content-center fw-bold mx-1">
@@ -57,10 +50,34 @@
                     <a href="/tasks/{{ object.pk }}/delete/" class="btn btn-danger mx-1 btn-sm">Eliminar</a>
                 </div>
                 {% endif %}
-<!--                <br>-->
-<!--                <div class="d-flex justify-content-center fw-bold mx-1">-->
-<!--                    -->
-<!--                </div>-->
+                <hr>
+                <div class="mt-3">
+                    <h5 class="fw-bold"><i class="bi bi-paperclip"></i> Archivos adjuntos:</h5>
+                    <div class="row g-2">
+                        {% for file_obj in object.files.all %}
+                            <div class="col-12 col-md-6">
+                                <div class="d-flex align-items-center p-2 border rounded bg-light shadow-sm">
+                                    <i class="bi bi-file-earmark-text fs-3 me-2 text-secondary"></i>
+
+                                    <div class="flex-grow-1 text-truncate">
+                                        <small class="d-block text-muted" style="font-size: 0.75rem;">
+                                            Subido el {{ file_obj.uploaded_at|date:"d/m/Y" }}
+                                        </small>
+                                        <a href="{{ file_obj.file.url }}" class="text-decoration-none link-dark fw-bold" target="_blank">
+                                            {{ file_obj.filename }}
+                                        </a>
+                                    </div>
+
+                                    <a href="{{ file_obj.file.url }}" download class="btn btn-outline-primary btn-sm ms-2">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted small italic">No hay archivos adjuntos.</p>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

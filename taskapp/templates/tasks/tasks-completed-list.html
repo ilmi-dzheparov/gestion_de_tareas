@@ -1,7 +1,7 @@
 {% extends "_base.html" %}
 
 {% block content %}
-<h2 class="fw-bold">Tareas</h2>
+<h2 class="fw-bold">Tareas completadas</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     {% if request.user.is_student %}
     <div class="hstack gap-3 pb-4">
@@ -10,18 +10,10 @@
     {% endif %}
 
     <div class="col-12">
-        {% if tasks|length == 0 %}
-            <span class="fw-bold text-muted">No hay tareas actuales</span>
-        {% endif %}
         <ul class="list-group">
             {% for task in tasks %}
             {# Логика определения цвета полоски слева #}
-            <li class="list-group-item list-group-item-light mb-2 shadow-sm rounded border-start border-4
-                {% if task.days_left < 0 %} border-secondary
-                {% elif task.days_left < 2 %} border-danger
-                {% elif task.days_left < 4 %} border-warning
-                {% else %} border-success
-                {% endif %}">
+            <li class="list-group-item list-group-item-light mb-2 shadow-sm rounded border-start border-4">
 
                 <div class="row align-items-center">
                     <div class="col text-start">
@@ -31,15 +23,6 @@
                         onmouseout="this.style.transform='scale(1)'">
                             {{ task.title }}
                         </a>
-                        <br>
-                        <small class="text-muted">
-                            <i class="bi bi-clock"></i>
-                            {% if task.end_date < now %}
-                                <span class="text-secondary">Expirado</span>
-                            {% else %}
-                                Quedan: {{ task.end_date|timeuntil }}
-                            {% endif %}
-                        </small>
                     </div>
 
                     {% if request.user.is_student %}

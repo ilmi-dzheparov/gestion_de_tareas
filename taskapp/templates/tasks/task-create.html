@@ -5,22 +5,74 @@
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     <div class="col"></div>
     <div class="col-12">
-        <form method="POST" action="/tasks/new/">
+        <form method="POST" action="/tasks/new/" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
             <fieldset>
-                <legend>Прикрепить файлы</legend>
+                <legend>Adjuntar archivos</legend>
                 {{ file_formset.management_form }}
-                {% for file_form in file_formset %}
-                    <div class="file-row">
-                        {{ file_form.file }}
-                        {{ file_form.errors }}
-                    </div>
-                {% endfor %}
+                <div id="file-formset-container">
+                    {% for file_form in file_formset %}
+                        <div class="file-row d-flex align-items-center mb-3 p-2 border-bottom shadow-sm bg-light rounded">
+                            <div class="flex-grow-1">
+                                {{ file_form.file }}
+                                {{ file_form.errors }}
+                                {{ file_form.id }}
+                            </div>
+                            <div class="ms-2">
+                                <div style="display: none;">{{ file_form.DELETE }}</div>
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-file-btn" title="Eliminar este archivo">
+                                    <i class="bi bi-trash"></i> ×
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </fieldset>
             <button type="submit" class="btn btn-primary">Crear</button>
         </form>
     </div>
     <div class="col"></div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('file-formset-container');
+
+        container.addEventListener('click', function(e) {
+            // Ищем кнопку удаления
+            const btn = e.target.closest('.remove-file-btn');
+            if (!btn) return;
+
+            const row = btn.closest('.file-row');
+            const fileInput = row.querySelector('input[type="file"]');
+            const checkboxDelete = row.querySelector('input[type="checkbox"][name*="-DELETE"]');
+
+            if (fileInput) {
+                // СОЗДАЕМ НОВЫЙ ЧИСТЫЙ INPUT
+                const newInput = document.createElement('input');
+
+                // Копируем все важные атрибуты, чтобы Django его узнал
+                newInput.type = 'file';
+                newInput.name = fileInput.name;
+                newInput.id = fileInput.id;
+                newInput.className = fileInput.className; // чтобы стили Bootstrap остались
+
+                // Заменяем старый на новый
+                fileInput.parentNode.replaceChild(newInput, fileInput);
+            }
+
+            // Если это редактирование (есть чекбокс DELETE),
+            // то при очистке поля мы НЕ ставим галочку удаления,
+            // так как пользователь просто решил поменять или убрать файл в этом слоте.
+            if (checkboxDelete) {
+                checkboxDelete.checked = false;
+            }
+
+            // Визуальная индикация очистки (необязательно)
+            row.style.transition = '0.3s';
+            row.style.backgroundColor = '#e8f0fe';
+            setTimeout(() => { row.style.backgroundColor = ''; }, 200);
+        });
+    });
+</script>
 {% endblock %}

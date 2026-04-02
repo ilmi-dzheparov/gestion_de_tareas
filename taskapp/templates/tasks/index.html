@@ -4,24 +4,35 @@
 <h2 class="fw-bold">Estadisticas</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
     <div class="col">
-        <div class="card border-light shadow" style="background: #eee">
-            <div class="card-body bg-gray-900">
+        <div class="card border-light h-100 shadow" style="background: #eee">
+            <div class="card-body d-flex flex-column">
                 <h5 class="card-title fw-bold">
                     <a href="/tasks/" class="link-dark text-decoration-none">Tareas</a>
                 </h5>
                 <i class="fas fa-microchip float-end"></i>
-                <p class="card-text fw-bold fs-1">{{ tasks_count }}</p>
+                <p class="card-text fw-bold fs-1 mt-auto mb-0">{{ tasks_count }}</p>
             </div>
         </div>
     </div>
     <div class="col">
-        <div class="card border-light shadow" style="background: #eee">
-            <div class="card-body">
+        <div class="card h-100 border-light shadow" style="background: #eee">
+            <div class="card-body d-flex flex-column">
                 <h5 class="card-title fw-bold">
                     <a href="/stages/" class="link-dark text-decoration-none">Etapas</a>
                 </h5>
                 <i class="fas fa-file-alt float-end"></i>
-                <p class="card-text fw-bold fs-1">{{ stages_count }}</p>
+                <p class="card-text fw-bold fs-1 mt-auto mb-0">{{ stages_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card border-light h-100 shadow" style="background: #eee">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold">
+                    <a href="/tasks_completed/" class="link-dark text-decoration-none">Tareas completadas</a>
+                </h5>
+                <i class="fas fa-microchip float-end"></i>
+                <p class="card-text fw-bold fs-1 mt-auto mb-0">{{ tasks_completed_count }}</p>
             </div>
         </div>
     </div>

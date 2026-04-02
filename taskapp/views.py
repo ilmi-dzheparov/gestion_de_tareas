@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.db.models import Q
 from django.db import transaction
@@ -20,24 +22,24 @@ from commentapp.models import CommentTask, CommentStage
 # from .utils import get_count
 
 
-def task_index(request):
-    return HttpResponse("Hello world")
-
 class StatisticView(View):
     def get(self, request):
         user = request.user
 
         # Si el usuario es TUTOR, contamos donde sea el tutor asignado
         if user.is_tutor:
-            tasks = Task.objects.filter(tutor=user)
-            stages = Stage.objects.filter(task__tutor=user)
+            tasks = Task.objects.filter(tutor=user, status=0)
+            stages = Stage.objects.filter(task__tutor=user, task__status=0)
+            tasks_completed = Task.objects.filter(tutor=user, status=1)
         # Si el usuario es ALUMNO, contamos donde esté en la lista de alumnos
         else:
-            tasks = Task.objects.filter(students=user)
-            stages = Stage.objects.filter(student=user)
+            tasks = Task.objects.filter(students=user, status=0)
+            stages = Stage.objects.filter(student=user, task__status=0)
+            tasks_completed = Task.objects.filter(students=user, status=1)
         context = {
             'tasks_count': tasks.count(),
             'stages_count': stages.count(),
+            'tasks_completed_count': tasks_completed.count(),
         }
         return render(request, 'tasks/index.html', context=context)
 
@@ -50,10 +52,37 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
         user = self.request.user
         # Filtramos: tareas donde es tutor O tareas donde está en el ManyToMany de alumnos
         return Task.objects.filter(
-            Q(tutor=user) | Q(students=user)
+            Q(tutor=user) | Q(students=user),
+            status=False
         ).distinct()
     #(.archived=False)
     # permission_required = ['products.view_product']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()  # Передаем текущее время
+        return context
+
+class TasksCompletedListView(ListView): #(PermissionRequiredMixin, ListView):
+    model = Task
+    template_name = 'tasks/tasks-completed-list.html'
+    context_object_name = 'tasks'
+
+    def get_queryset(self):
+        user = self.request.user
+        # Filtramos: tareas donde es tutor O tareas donde está en el ManyToMany de alumnos
+        return Task.objects.filter(
+            Q(tutor=user) | Q(students=user),
+            status=True
+        ).distinct()
+    #(.archived=False)
+    # permission_required = ['products.view_product']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()  # Передаем текущее время
+        return context
+
 
 class TaskDetailView(FormMixin, DetailView):
     model = Task
@@ -143,6 +172,35 @@ class TaskUpdateView(UpdateView):
         kwargs['user_group'] = user_group
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            # Передаем self.get_object(), чтобы связать данные с текущей задачей
+            data['file_formset'] = TaskFileFormSet(
+                self.request.POST,
+                self.request.FILES,
+                instance=self.get_object()
+            )
+        else:
+            # ВАЖНО: Передаем instance=self.get_object(),
+            # чтобы в форме появились уже существующие файлы
+            data['file_formset'] = TaskFileFormSet(instance=self.get_object())
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        file_formset = context['file_formset']
+
+        if file_formset.is_valid():
+            with transaction.atomic():
+                self.object = form.save()
+                file_formset.instance = self.object
+                file_formset.save()
+            return super().form_valid(form)
+        else:
+            # Если файлы не валидны, возвращаем форму с ошибками формсета
+            return self.render_to_response(self.get_context_data(form=form, file_formset=file_formset))
+
 class TaskDeleteView(DeleteView):
     model = Task
     template_name = 'tasks/task-delete.html'
@@ -163,7 +221,8 @@ class StagesListView(ListView): #(PermissionRequiredMixin, ListView):
         user = self.request.user
         # Filtramos: stages donde es tutor O stages donde es alumno
         return Stage.objects.filter(
-            Q(task__tutor=user) | Q(student=user)
+            Q(task__tutor=user) | Q(student=user),
+            task__status=0
         ).distinct()
      #(.archived=False)
     # permission_required = ['products.view_product']

@@ -95,3 +95,31 @@ body {
     z-index: 10 !important;
     background: #eee;
 }
+
+#drop-zone {
+    border: 2px dashed #0d6efd;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#drop-zone.dragover {
+    background-color: #e9ecef;
+    border-color: #0a58ca;
+}
+
+.file-preview-item {
+    width: 100px;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.file-preview-item i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 5px;
+}

@@ -1,7 +1,12 @@
+import os
+
 from django import forms
 from .models import Task, Stage, TaskFile
 from myauth.models import User
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
 User = get_user_model()
 
 
@@ -21,7 +26,17 @@ class CustomCheckboxWidget(forms.CheckboxSelectMultiple):
 
         return wrapper
 
+
 class TaskForm(forms.ModelForm):
+    # Definimos el campo sin el atributo 'multiple' aquí
+    # attachments = forms.FileField(
+    #     widget=forms.ClearableFileInput(attrs={
+    #         'class': 'form-control',
+    #         'id': 'file-input'
+    #     }),
+    #     rsequired=False,
+    #     label="Adjuntar archivos"
+    # )
     class Meta:
         model = Task
         fields = '__all__'
@@ -54,13 +69,30 @@ class TaskForm(forms.ModelForm):
             # Fallback for users without a group (e.g., superusers)
             self.fields['students'].queryset = User.objects.all()
 
+        # # Inyectamos el atributo 'multiple' manualmente para el HTML
+        # # Esto engaña a Django y evita el ValueError
+        # self.fields['attachments'].widget.attrs.update({'multiple': True})
+
 # Создаем набор форм для файлов
 TaskFileFormSet = forms.inlineformset_factory(
     Task, TaskFile,
     fields=('file',),
-    extra=3,        # сколько пустых полей для файлов показать сразу
-    can_delete=True # позволит удалять уже загруженные файлы при редактировании
+    extra=5,        # сколько пустых полей для файлов показать сразу
+    can_delete=True, # позволит удалять уже загруженные файлы при редактировании
+    widgets={
+            'file': forms.FileInput(attrs={'class': 'form-control file-input-field'})
+        }
 )
+
+# СИГНАЛ: Удаление файла с диска после удаления записи из БД
+@receiver(post_delete, sender=TaskFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Удаляет файл из файловой системы, когда объект TaskFile удаляется.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
 
 class StageForm(forms.ModelForm):
     def __init__(self, *args, fixed_task=None, **kwargs):
