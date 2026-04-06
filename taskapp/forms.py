@@ -1,7 +1,7 @@
 import os
 
 from django import forms
-from .models import Task, Stage, TaskFile
+from .models import Task, Stage, TaskFile, StageFile
 from myauth.models import User
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_delete
@@ -76,6 +76,17 @@ class TaskForm(forms.ModelForm):
 # Создаем набор форм для файлов
 TaskFileFormSet = forms.inlineformset_factory(
     Task, TaskFile,
+    fields=('file',),
+    extra=5,        # сколько пустых полей для файлов показать сразу
+    can_delete=True, # позволит удалять уже загруженные файлы при редактировании
+    widgets={
+            'file': forms.FileInput(attrs={'class': 'form-control file-input-field'})
+        }
+)
+
+# Создаем набор форм для файлов
+StageFileFormSet = forms.inlineformset_factory(
+    Stage, StageFile,
     fields=('file',),
     extra=5,        # сколько пустых полей для файлов показать сразу
     can_delete=True, # позволит удалять уже загруженные файлы при редактировании

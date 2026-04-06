@@ -3,13 +3,18 @@
 {% block content %}
 <h2 class="fw-bold">Tareas</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
-    {% if request.user.is_student %}
-    <div class="hstack gap-3 pb-4">
-        <a href="/tasks/new" class="btn btn-success p-2">Crear tarea</a>
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div class="btn-group shadow-sm" role="group" id="task-filter-group">
+            <button type="button" id="btn-actual" class="btn btn-primary active-filter" data-filter="active">Actuales</button>
+            <button type="button" id="btn-completed" class="btn btn-outline-primary" data-filter="completed">Completadas</button>
+        </div>
+        {% if request.user.is_student %}
+        <div class="hstack gap-3 pb-4">
+            <a href="/tasks/new" class="btn btn-success p-2">Crear tarea</a>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-
-    <div class="col-12">
+    <div id="task_actual" class="col-12">
         {% if tasks|length == 0 %}
             <span class="fw-bold text-muted">No hay tareas actuales</span>
         {% endif %}
@@ -27,7 +32,7 @@
                     <div class="col text-start">
                         <a href="/tasks/{{ task.pk }}" class="text-decoration-none link-dark p-1 d-inline-block fw-bold"
                         style="transition: transform 0.2s;"
-                        onmouseover="this.style.transform='scale(1.2)'"
+                        onmouseover="this.style.transform='scale(1.1)'"
                         onmouseout="this.style.transform='scale(1)'">
                             {{ task.title }}
                         </a>
@@ -54,5 +59,66 @@
             {% endfor %}
         </ul>
     </div>
+    <div id="task_completed" class="col-12 d-none">
+        {% if completed_tasks|length == 0 %}
+            <span class="fw-bold text-muted">No hay tareas completadas</span>
+        {% endif %}
+        <ul class="list-group">
+            {% for task in completed_tasks %}
+            {# Логика определения цвета полоски слева #}
+            <li class="list-group-item list-group-item-light mb-2 shadow-sm rounded border-start border-4">
+
+                <div class="row align-items-center">
+                    <div class="col text-start">
+                        <a href="/tasks/{{ task.pk }}" class="text-decoration-none link-dark p-1 d-inline-block fw-bold"
+                        style="transition: transform 0.2s;"
+                        onmouseover="this.style.transform='scale(1.2)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                            {{ task.title }}
+                        </a>
+                        <br>
+                    </div>
+
+                    {% if request.user.is_student %}
+                    <div class="col-auto">
+                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger btn-sm" style="min-width: 100px;">
+                            Eliminar
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnActual = document.getElementById('btn-actual');
+    const btnCompleted = document.getElementById('btn-completed');
+    const listActual = document.getElementById('task_actual');
+    const listCompleted = document.getElementById('task_completed');
+
+    function showActual() {
+        // Списки
+        listActual.classList.remove('d-none');
+        listCompleted.classList.add('d-none');
+        // Кнопки
+        btnActual.classList.replace('btn-outline-primary', 'btn-primary');
+        btnCompleted.classList.replace('btn-primary', 'btn-outline-primary');
+    }
+
+    function showCompleted() {
+        // Списки
+        listActual.classList.add('d-none');
+        listCompleted.classList.remove('d-none');
+        // Кнопки
+        btnActual.classList.replace('btn-primary', 'btn-outline-primary');
+        btnCompleted.classList.replace('btn-outline-primary', 'btn-primary');
+    }
+
+    btnActual.addEventListener('click', showActual);
+    btnCompleted.addEventListener('click', showCompleted);
+});
+</script>
 {% endblock %}

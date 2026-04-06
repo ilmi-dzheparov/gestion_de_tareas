@@ -9,10 +9,10 @@
             <div class="card-body">
                 <h5 class="card-title fw-bold">{{ object.title }}</h5>
                 <p class="card-text">{{ object.description }}</p>
-                <p class="card-text">Fecha de inicio: {{ object.start_date }}</p>
-                <p class="card-text">Fecha de terminacion: {{ object.end_date }}</p>
+                <p class="card-text"><span class="card-text fw-semibold">Fecha de inicio:</span> {{ object.start_date }}</p>
+                <p class="card-text"><span class="card-text fw-semibold">Fecha de terminacion:</span> {{ object.end_date }}</p>
                 <div class="d-flex justify-content-between align-items-center">
-                    <p class="card-text">Etapas</p>
+                    <p class="card-text fw-semibold">Etapas</p>
                     {% if request.user.is_student %}
                     <div class="d-flex justify-content-center fw-bold mb-1">
                         <a href="/stages/new/?task={{ object.id }}" class="btn btn-success my-1 btn-sm">Crear etapa</a>
@@ -22,21 +22,50 @@
 
                 <ul class="list-group">
                     {% for stage in object.stages.all %}
-                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">
-                        <a href="/stages/{{ stage.pk }}/" class="text-decoration-none link-dark shadow-sm rounded p-1"
-                        style="transition: transform 0.2s; display: inline-block;"
-                        onmouseover="this.style.transform='scale(1.1)'"
-                        onmouseout="this.style.transform='scale(1)'">
-                            Etapa {{ stage.count }}: {{ stage.title }}
-                        </a>
+                    <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center mb-2
+                    shadow-sm rounded border-start border-4
+                            {% if stage.status %} border-success
+                            {% elif stage.days_left < 0 %} border-secondary
+                            {% elif stage.days_left < 2 %} border-danger
+                            {% elif stage.days_left < 4 %} border-warning
+                            {% else %} border-success
+                            {% endif %}">
+                        <div class="ps-3">
+                            <a href="/stages/{{ stage.pk }}/" class="text-decoration-none link-dark fw-bold d-inline-block"
+                               style="transition: transform 0.2s;"
+                               onmouseover="this.style.transform='scale(1.1)'"
+                               onmouseout="this.style.transform='scale(1)'">
+                                Etapa {{ forloop.counter }}: {{ stage.title }}
+                            </a>
+                            <br>
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i>
+                                {% if stage.end_date < now %}
+                                    <span class="text-secondary">Expirado</span>
+                                {% else %}
+                                    Quedan: {{ stage.end_date|timeuntil }}
+                                {% endif %}
+                            </small>
+                            <br>
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i>
+                                    Responsable: {{ stage.student }}
+                            </small>
+                        </div>
+
                         {% if request.user.is_student %}
-                        <a href="/tasks/{{ task.pk }}/delete" class="btn btn-danger btn-sm">Eliminar</a>
+                            <div class="ms-auto">
+                                <a href="/stages/{{ stage.pk }}/delete" class="btn btn-danger btn-sm" style="min-width: 80px;">
+                                    Eliminar
+                                </a>
+                            </div>
                         {% endif %}
                     </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted text-center">No hay etapas</li>
                     {% endfor %}
                 </ul>
-                <p class="card-text">Participants:</p>
-<!--                <ul class="list-group">-->
+                <p class="card-text fw-semibold">Participants:</p>
                  <p>
                     {% for student in object.students.all %}
                          | <strong>{{ student }}</strong> |

@@ -75,4 +75,33 @@
         });
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Получаем ID текущего пользователя из контекста Django
+    const currentUserId = "{{ request.user.id }}";
+
+    // Находим нужный чекбокс по имени поля и ID пользователя
+    const userCheckbox = document.querySelector(`input[name="students"][value="${currentUserId}"]`);
+
+    if (userCheckbox) {
+        // 1. Принудительно ставим галочку
+        userCheckbox.checked = true;
+
+        // 2. Блокируем изменение состояния кликом
+        userCheckbox.onclick = function(e) {
+            e.preventDefault(); // Отменяет стандартное действие (снятие галочки)
+            return false;
+        };
+
+        // 3. Визуальное оформление
+        // Оборачивающий элемент (обычно <label> или <div>) делаем визуально "заблокированным"
+        const container = userCheckbox.parentElement;
+        container.style.opacity = "0.7";
+        container.style.cursor = "not-allowed";
+
+        // Подсказка при наведении
+        container.title = "Вы не можете исключить себя из списка участников";
+    }
+});
+</script>
 {% endblock %}

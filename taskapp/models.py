@@ -36,7 +36,7 @@ class Course(models.Model):
     department = models.ForeignKey(Department, on_delete=models.PROTECT, verbose_name="Departamento")
 
     def __str__(self):
-        return f"{self.name_short}"
+        return f"{self.name_short}.{self.name}"
 
 class Task(models.Model):
     """
@@ -184,10 +184,13 @@ class StageFile(models.Model):
         verbose_name='etapa'
     )
     file = models.FileField(
-        upload_to='tasks/attachments/%Y/%m/%d/',
+        upload_to='stages/attachments/%Y/%m/%d/',
         verbose_name='archivo'
     )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Archivo para {self.stage.title}"
+
+    def filename(self):
+        return os.path.basename(self.file.name)

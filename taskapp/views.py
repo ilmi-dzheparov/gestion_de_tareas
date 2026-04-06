@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse, request
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import (
     ListView,
     DetailView,
@@ -17,7 +17,7 @@ from django.views.generic import (
 from django.views.generic.edit import FormMixin
 
 from .models import Task, Stage
-from .forms import TaskForm, StageForm, TaskFileFormSet
+from .forms import TaskForm, StageForm, TaskFileFormSet, StageFileFormSet
 from commentapp.models import CommentTask, CommentStage
 # from .utils import get_count
 
@@ -60,6 +60,13 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Дополнительно передаем завершенные задачи в этот же шаблон
+        context['completed_tasks'] = Task.objects.filter(
+            Q(tutor=user) | Q(students=user),
+            status=True
+        ).distinct().order_by('-end_date')
         context['now'] = timezone.now()  # Передаем текущее время
         return context
 
@@ -80,7 +87,8 @@ class TasksCompletedListView(ListView): #(PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()  # Передаем текущее время
+
+        context['now'] = timezone.now()
         return context
 
 
@@ -105,6 +113,7 @@ class TaskDetailView(FormMixin, DetailView):
         # Traemos la lista de comentarios para ESTA tarea
         context['comments'] = (CommentTask.objects.filter(task=self.object)
                                .select_related('user').order_by('-uploaded_at'))
+        context['now'] = timezone.now()
         return context
 
 class TaskCreateView(CreateView):
@@ -222,10 +231,24 @@ class StagesListView(ListView): #(PermissionRequiredMixin, ListView):
         # Filtramos: stages donde es tutor O stages donde es alumno
         return Stage.objects.filter(
             Q(task__tutor=user) | Q(student=user),
-            task__status=0
+            task__status=False,
+            status=False
         ).distinct()
      #(.archived=False)
     # permission_required = ['products.view_product']
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        context = super().get_context_data(**kwargs)
+
+        # Дополнительно передаем завершенные задачи в этот же шаблон
+        context['completed_stages'] = Stage.objects.filter(
+            Q(task__tutor=user) | Q(student=user),
+            Q(status=True) | Q(task__status=True)
+        ).distinct().order_by('-end_date')
+
+        context['now'] = timezone.now()
+        return context
 
 class StageDetailView(DetailView):
     model = Stage
@@ -242,7 +265,11 @@ class StageCreateView(CreateView):
     model = Stage
     template_name = 'stages/stage-create.html'
     form_class = StageForm
-    success_url = reverse_lazy('taskapp:tasks_list')
+
+    def get_success_url(self):
+        # self.object — это только что созданный объект Stage
+        # Мы берем pk его задачи (task) и строим URL
+        return reverse('taskapp:task_detail', kwargs={'pk': self.object.task.pk})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -254,14 +281,32 @@ class StageCreateView(CreateView):
 
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        """Добавляет formset файлов в контекст шаблона."""
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            # Если отправка формы — заполняем данными
+            data['file_formset'] = StageFileFormSet(self.request.POST, self.request.FILES)
+        else:
+            # Если открытие страницы — пустая форма
+            data['file_formset'] = StageFileFormSet()
+        return data
+
     def form_valid(self, form):
-        stage = form.save(commit=False)
+        """Сохраняет задачу и привязанные к ней файлы."""
+        context = self.get_context_data()
+        file_formset = context['file_formset']
 
-        task_id = self.request.GET.get('task')
-        if task_id:
-            stage.task = get_object_or_404(Task, id=task_id)
+        # Используем транзакцию: если файлы не валидны, задача не создастся
+        with transaction.atomic():
+            self.object = form.save()
+            if file_formset.is_valid():
+                file_formset.instance = self.object
+                file_formset.save()
+            else:
+                # Если файлы не валидны — перерисовываем страницу с ошибками
+                return self.render_to_response(self.get_context_data(form=form))
 
-        stage.save()
         return super().form_valid(form)
 
 class StageUpdateView(UpdateView):
@@ -278,10 +323,34 @@ class StageUpdateView(UpdateView):
 
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            # Передаем self.get_object(), чтобы связать данные с текущей задачей
+            data['file_formset'] = StageFileFormSet(
+                self.request.POST,
+                self.request.FILES,
+                instance=self.get_object()
+            )
+        else:
+            # ВАЖНО: Передаем instance=self.get_object(),
+            # чтобы в форме появились уже существующие файлы
+            data['file_formset'] = StageFileFormSet(instance=self.get_object())
+        return data
+
     def form_valid(self, form):
-        # No necesitas el bloque de request.GET.get('task')
-        # porque la tarea ya está asociada a esta instancia de 'Stage'
-        return super().form_valid(form)
+        context = self.get_context_data()
+        file_formset = context['file_formset']
+
+        if file_formset.is_valid():
+            with transaction.atomic():
+                self.object = form.save()
+                file_formset.instance = self.object
+                file_formset.save()
+            return super().form_valid(form)
+        else:
+            # Если файлы не валидны, возвращаем форму с ошибками формсета
+            return self.render_to_response(self.get_context_data(form=form, file_formset=file_formset))
 
     def get_success_url(self):
         return reverse_lazy('taskapp:stage_detail', kwargs={'pk': self.object.pk})

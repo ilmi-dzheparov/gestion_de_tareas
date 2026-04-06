@@ -8,9 +8,91 @@
         <form method="POST" enctype="multipart/form-data" action="/stages/{{ object.pk }}/edit/">
             {% csrf_token %}
             {{ form.as_p }}
+            <fieldset>
+                <legend>Adjuntar archivos</legend>
+                {{ file_formset.management_form }}
+                <div id="file-formset-container">
+                    {% for file_form in file_formset %}
+                        <div class="file-row d-flex align-items-center mb-3 p-2 border-bottom bg-light rounded shadow-sm">
+                            <div class="flex-grow-1">
+                                {% if file_form.instance.pk %}
+                                    <div class="mb-1 small">
+                                        <span class="text-muted">Actual:</span>
+                                        <strong>{{ file_form.instance.filename }}</strong>
+                                    </div>
+                                {% endif %}
+
+                                {{ file_form.file }}
+                                {{ file_form.errors }}
+                                {{ file_form.id }}
+                            </div>
+
+                            <div class="ms-2">
+                                <div style="display: none;">{{ file_form.DELETE }}</div>
+
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-file-btn" title="Limpiar/Eliminar">
+                                    <i class="bi bi-x-lg"></i> ×
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </fieldset>
             <button type="submit" class="btn btn-primary">Aplicar</button>
         </form>
     </div>
     <div class="col"></div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('file-formset-container');
+
+        container.addEventListener('click', function(e) {
+            const btn = e.target.closest('.remove-file-btn');
+            if (!btn) return;
+
+            const row = btn.closest('.file-row');
+
+            // 1. Ищем скрытый ID (пробуем разные варианты селекторов)
+            const idInput = row.querySelector('input[name$="-id"]');
+
+            // 2. Ищем чекбокс DELETE (пробуем разные варианты)
+            const checkboxDelete = row.querySelector('input[type="checkbox"][name*="-DELETE"]');
+
+            // 3. Дополнительная проверка: есть ли в этой строке текст "Actual:"
+            const hasActualText = row.innerText.includes("Actual:");
+
+            // Считаем файл существующим, если есть ID со значением ИЛИ есть текст "Actual:"
+            const isExistingFile = (idInput && idInput.value !== "") || hasActualText;
+
+            if (isExistingFile) {
+                // СЛУЧАЙ 1: Файл из базы
+                if (confirm("¿Eliminar este archivo permanentemente?")) {
+                    if (checkboxDelete) {
+                        checkboxDelete.checked = true; // Отмечаем для Django
+                        row.style.setProperty('display', 'none', 'important'); // Скрываем принудительно
+                        console.log("Файл помечен на удаление и скрыт");
+                    } else {
+                        // Если чекбокс не найден, просто скроем строку,
+                        // но это значит, что в forms.py не включен can_delete=True
+                        row.style.display = 'none';
+                        console.warn("Чекбокс DELETE не найден, запись в БД может не удалиться");
+                    }
+                }
+            } else {
+                // СЛУЧАЙ 2: Новое (пустое) поле
+                const fileInput = row.querySelector('input[type="file"]');
+                if (fileInput) {
+                    fileInput.value = "";
+                    const newInput = fileInput.cloneNode(true);
+                    newInput.value = "";
+                    fileInput.parentNode.replaceChild(newInput, fileInput);
+
+                    row.style.backgroundColor = "#fff3cd";
+                    setTimeout(() => { row.style.backgroundColor = ""; }, 200);
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

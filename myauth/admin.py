@@ -111,7 +111,7 @@ class MyUserAdmin(UserAdmin, ExportAsCSVMixin):
                                 'is_student': str(row.get('is_student', '')).lower() == 'true',
                                 'is_tutor': str(row.get('is_tutor', '')).lower() == 'true',
                                 # Если нужно импортировать ID группы:
-                                # 'group_id': row.get('group') if row.get('group') else None,
+                                'group_id': row.get('group') if row.get('group') else None,
                             }
                         )
 

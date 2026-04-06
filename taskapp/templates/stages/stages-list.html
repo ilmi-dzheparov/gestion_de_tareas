@@ -3,17 +3,19 @@
 {% block content %}
 <h2 class="fw-bold">Etapas</h2>
 <div class="row bg-white px-3 py-3 mx-2 my-5 rounded pb-5 shadow-lg">
-<!--    <div class="hstack gap-3 pb-4">-->
-<!--        <a href="/stages/new/" class="btn btn-success p-2">Crear etapa</a>-->
-<!--    </div>-->
-    <div class="col text-start">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div class="btn-group shadow-sm" role="group" id="stage-filter-group">
+            <button type="button" id="btn-actual" class="btn btn-primary active-filter" data-filter="active">Actuales</button>
+            <button type="button" id="btn-completed" class="btn btn-outline-primary" data-filter="completed">Completadas</button>
+        </div>
+    </div>
+    <div id="stages_actual" class="col text-start">
+        {% if stages|length == 0 %}
+            <span class="fw-bold text-muted">No hay etapas actuales</span>
+        {% endif %}
+        {% for stage in stages %}
         <ul class="list-group">
-            {% if stages|length == 0 %}
-                <span class="fw-bold text-muted">No hay etapas actuales</span>
-            {% endif %}
-            {% for stage in stages %}
-            <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center
-                    border-start border-4
+            <li class="list-group-item list-group-item-light mb-2 shadow-sm rounded border-start border-4
                 {% if stage.days_left < 0 %} border-secondary
                 {% elif stage.days_left < 2 %} border-danger
                 {% elif stage.days_left < 4 %} border-warning
@@ -25,13 +27,13 @@
                         style="transition: transform 0.2s; display: inline-block;"
                         onmouseover="this.style.transform='scale(1.1)'"
                         onmouseout="this.style.transform='scale(1)'">
-                            Etapa: {{ stage.count }}  {{ stage.title }}
+                            <span class="fw-semibold">Etapa: {{ stage.count }}</span>  {{ stage.title }}
                         </a>
                         <a href="/tasks/{{ stage.task.pk }}/" class="text-decoration-none link-dark ms-3 shadow-sm rounded p-1 d-inline-block"
                         style="transition: transform 0.2s; display: inline-block;"
                         onmouseover="this.style.transform='scale(1.1)'"
                         onmouseout="this.style.transform='scale(1)'">
-                            Task: {{ stage.task.title }}
+                            <span class="fw-semibold">Task:</span> {{ stage.task.title }}
                         </a>
 
                     <br>
@@ -55,5 +57,67 @@
 
         </ul>
     </div>
+    <div id="stages_completed" class="col text-start d-none">
+        {% if completed_stages|length == 0 %}
+            <span class="fw-bold text-muted">No hay etapas completadas</span>
+        {% endif %}
+        {% for stage in completed_stages %}
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-light mb-2 shadow-sm rounded border-start border-4">
+                <div class="row align-items-center">
+                    <div class="col text-start">
+                        <a href="/stages/{{ stage.pk }}/" class="text-decoration-none link-dark shadow-sm rounded p-1"
+                        style="transition: transform 0.2s; display: inline-block;"
+                        onmouseover="this.style.transform='scale(1.1)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                            <span class="fw-semibold">Etapa: {{ stage.count }}</span>  {{ stage.title }}
+                        </a>
+                        <a href="/tasks/{{ stage.task.pk }}/" class="text-decoration-none link-dark ms-3 shadow-sm rounded p-1 d-inline-block"
+                        style="transition: transform 0.2s; display: inline-block;"
+                        onmouseover="this.style.transform='scale(1.1)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                            <span class="fw-semibold">Task:</span>  {{ stage.task.title }}
+                        </a>
+                    </div>
+                    <div class="col-auto">
+                        {% if request.user.is_student %}
+                        <a href="/stages/{{ stage.pk }}/delete/" class="btn btn-danger ms-3 btn-sm">Eliminar etapa</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+
+        </ul>
+    </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnActual = document.getElementById('btn-actual');
+    const btnCompleted = document.getElementById('btn-completed');
+    const listActual = document.getElementById('stages_actual');
+    const listCompleted = document.getElementById('stages_completed');
+
+    function showActual() {
+        // Списки
+        listActual.classList.remove('d-none');
+        listCompleted.classList.add('d-none');
+        // Кнопки
+        btnActual.classList.replace('btn-outline-primary', 'btn-primary');
+        btnCompleted.classList.replace('btn-primary', 'btn-outline-primary');
+    }
+
+    function showCompleted() {
+        // Списки
+        listActual.classList.add('d-none');
+        listCompleted.classList.remove('d-none');
+        // Кнопки
+        btnActual.classList.replace('btn-primary', 'btn-outline-primary');
+        btnCompleted.classList.replace('btn-outline-primary', 'btn-primary');
+    }
+
+    btnActual.addEventListener('click', showActual);
+    btnCompleted.addEventListener('click', showCompleted);
+});
+</script>
 {% endblock %}

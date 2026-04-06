@@ -34,7 +34,7 @@ urlpatterns = [
 
     # Gestión Completa de Tareas (CRUD)
     path('tasks/', TasksListView.as_view(), name='tasks_list'),  # Listado general
-    path('tasks_completed/', TasksCompletedListView.as_view(), name='tasks_completed_list'),  # Listado general
+    # path('tasks_completed/', TasksCompletedListView.as_view(), name='tasks_completed_list'),  # Listado general
     path('tasks/new/', TaskCreateView.as_view(), name='task_create'),  # Formulario de alta
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task_detail'),  # Detalle y alumnos
     path('tasks/<int:pk>/edit/', TaskUpdateView.as_view(), name='task_update'),  # Modificación
