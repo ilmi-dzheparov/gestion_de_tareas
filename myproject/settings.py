@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-+=#yoa^-kth#aj+5@t9s856twxm+wvsw+py21plbph7rfem)bl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gestion-de-tareas-wtwp.onrender.com', 'localhost', '127.0.0.1']
 
 # LOGIN_REDIRECT_URL = "/admin/"
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
