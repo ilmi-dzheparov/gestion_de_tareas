@@ -7,7 +7,21 @@
     <div class="col-12">
         <form method="POST" action="/tasks/new/" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
+            {% for field in form %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {% if field.name == 'students' %}
+                        <div id="students-container" class="border p-3 rounded bg-light">
+                            {{ field }}
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
             <fieldset>
                 <legend>Adjuntar archivos</legend>
                 {{ file_formset.management_form }}
@@ -103,5 +117,50 @@
         container.title = "Вы не можете исключить себя из списка участников";
     }
 });
+</script>
+
+<script>
+    $(document).ready(function() {
+        const currentUserId = "{{ request.user.id }}";
+
+        // Функция для блокировки текущего пользователя в списке
+        function lockCurrentUser() {
+            const userCheckbox = document.querySelector(`input[name="students"][value="${currentUserId}"]`);
+            if (userCheckbox) {
+                userCheckbox.checked = true;
+                userCheckbox.onclick = function(e) {
+                    e.preventDefault();
+                    return false;
+                };
+                const container = userCheckbox.parentElement;
+                container.style.opacity = "0.7";
+                container.style.cursor = "not-allowed";
+                container.title = "Вы не можете исключить себя из списка участников";
+            }
+        }
+
+        // Выполняем при первой загрузке страницы
+        lockCurrentUser();
+
+        // AJAX логика выбора группы
+        $('#id_group_select').change(function() {
+            var url = "{% url 'taskapp:ajax_load_students' %}";
+            var groupId = $(this).val();
+
+            $.ajax({
+                url: url,
+                data: { 'group_id': groupId },
+                success: function(data) {
+                    // Обновляем HTML
+                    $("#students-container").html(data);
+                    // Снова блокируем текущего юзера в новом списке
+                    lockCurrentUser();
+                },
+                error: function() {
+                    console.error("Ошибка при загрузке списка студентов");
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}

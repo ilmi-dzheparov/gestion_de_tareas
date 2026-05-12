@@ -1,7 +1,7 @@
 import os
 
 from django import forms
-from .models import Task, Stage, TaskFile, StageFile
+from .models import Task, Stage, TaskFile, StageFile, Group
 from myauth.models import User
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_delete
@@ -37,9 +37,18 @@ class TaskForm(forms.ModelForm):
     #     rsequired=False,
     #     label="Adjuntar archivos"
     # )
+    # Campo extra que no está en el modelo Task
+    group = forms.ModelChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        label="Seleccionar Grupo",
+        widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_group_select'})
+    )
+
     class Meta:
         model = Task
-        fields = '__all__'
+        #fields = '__all__'
+        exclude = ['author']
         widgets = {
             'end_date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 4}),
@@ -55,19 +64,48 @@ class TaskForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # 1. Pop the custom argument 'user_group'
         user_group = kwargs.pop('user_group', None)
+        current_user = kwargs.pop('current_user', None)
+        is_tutor = kwargs.pop('is_tutor', False)
         super(TaskForm, self).__init__(*args, **kwargs)
 
-        # 2. Use the argument to filter the queryset for the 'students' field
-        if user_group:
+        # 1. Скрываем группу для обычных пользователей
+        if not is_tutor:
+            if 'group' in self.fields:
+                self.fields.pop('group')
+
+
+        # 2. Настройка списка студентов (ГЛАВНОЕ ИСПРАВЛЕНИЕ ТУТ)
+        if 'students' in self.data:
+            # Если форма отправлена (POST), разрешаем любых студентов,
+            # чтобы AJAX-выбор прошел валидацию
+            self.fields['students'].queryset = User.objects.all()
+
+        elif user_group:
+            # Если это обычный студент, видит только своих одногруппников
             self.fields['students'].queryset = User.objects.filter(
                 group=user_group,
                 is_student=True
             ).order_by('last_name')
+
+        # 2. ЕСЛИ ЭТО РЕДАКТИРОВАНИЕ (есть объект в базе)
+        elif self.instance.pk:
+            # Показываем студентов, которые уже привязаны к этой задаче
+            self.fields['students'].queryset = self.instance.students.all()
+            # Также можно предустановить группу в селекторе, если она сохранена в задаче
+            if hasattr(self.instance, 'group') and self.instance.group:
+                self.initial['group'] = self.instance.group
+
+        elif is_tutor:
+            # Если это вход тьютора (первичная загрузка), список пуст до выбора группы через AJAX
+            self.fields['students'].queryset = User.objects.none()
         else:
-            # Fallback for users without a group (e.g., superusers)
             self.fields['students'].queryset = User.objects.all()
+
+        # 3. Настройка Тьютора
+        if is_tutor and current_user:
+            self.initial['tutor'] = current_user
+            self.fields['tutor'].disabled = True
 
         # # Inyectamos el atributo 'multiple' manualmente para el HTML
         # # Esto engaña a Django y evita el ValueError

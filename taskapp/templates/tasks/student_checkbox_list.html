@@ -1,0 +1,10 @@
+{% for student in students %}
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="students" value="{{ student.pk }}" id="id_students_{{ forloop.counter0 }}">
+        <label class="form-check-label" for="id_students_{{ forloop.counter0 }}">
+            {{ student.last_name }} {{ student.name }}
+        </label>
+    </div>
+{% empty %}
+    <p class="text-muted">No hay alumnos en el grupo.</p>
+{% endfor %}

@@ -19,6 +19,7 @@ from django.views.generic.edit import FormMixin
 from .models import Task, Stage
 from .forms import TaskForm, StageForm, TaskFileFormSet, StageFileFormSet
 from commentapp.models import CommentTask, CommentStage
+from myauth.models import User
 # from .utils import get_count
 
 
@@ -116,6 +117,17 @@ class TaskDetailView(FormMixin, DetailView):
         context['now'] = timezone.now()
         return context
 
+
+def load_students(request):
+    group_id = request.GET.get('group_id')
+    if group_id:
+        students = User.objects.filter(group_id=group_id, is_student=True).order_by('last_name')
+    else:
+        students = User.objects.none()
+
+    # Возвращаем только фрагмент шаблона
+    return render(request, 'tasks/student_checkbox_list.html', {'students': students})
+
 class TaskCreateView(CreateView):
     model = Task
     template_name = 'tasks/task-create.html'
@@ -129,8 +141,9 @@ class TaskCreateView(CreateView):
         # Get the group of the currently logged-in user (assuming the user creating
         # the task has a 'group' Foreign Key relationship)
         user_group = self.request.user.group
-
+        kwargs['current_user'] = self.request.user
         kwargs['user_group'] = user_group
+        kwargs['is_tutor'] = self.request.user.is_tutor
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -148,6 +161,8 @@ class TaskCreateView(CreateView):
         """Сохраняет задачу и привязанные к ней файлы."""
         context = self.get_context_data()
         file_formset = context['file_formset']
+
+        form.instance.author = self.request.user
 
         # Используем транзакцию: если файлы не валидны, задача не создастся
         with transaction.atomic():
@@ -177,8 +192,11 @@ class TaskUpdateView(UpdateView):
         # Get the group of the currently logged-in user (assuming the user creating
         # the task has a 'group' Foreign Key relationship)
         user_group = self.request.user.group
-
         kwargs['user_group'] = user_group
+        user_group = self.request.user.group
+        kwargs['current_user'] = self.request.user
+        kwargs['user_group'] = user_group
+        kwargs['is_tutor'] = self.request.user.is_tutor
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -199,6 +217,8 @@ class TaskUpdateView(UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         file_formset = context['file_formset']
+
+        form.instance.author = self.request.user
 
         if file_formset.is_valid():
             with transaction.atomic():

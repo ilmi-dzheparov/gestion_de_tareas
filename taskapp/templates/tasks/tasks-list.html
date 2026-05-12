@@ -8,11 +8,11 @@
             <button type="button" id="btn-actual" class="btn btn-primary active-filter" data-filter="active">Actuales</button>
             <button type="button" id="btn-completed" class="btn btn-outline-primary" data-filter="completed">Completadas</button>
         </div>
-        {% if request.user.is_student %}
+
         <div class="hstack gap-3 pb-4">
             <a href="/tasks/new" class="btn btn-success p-2">Crear tarea</a>
         </div>
-        {% endif %}
+
     </div>
     <div id="task_actual" class="col-12">
         {% if tasks|length == 0 %}
@@ -121,4 +121,5 @@ document.addEventListener('DOMContentLoaded', function() {
     btnCompleted.addEventListener('click', showCompleted);
 });
 </script>
+
 {% endblock %}

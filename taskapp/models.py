@@ -57,6 +57,15 @@ class Task(models.Model):
     # Representa si la etapa ha sido completada (True) o sigue pendiente (False)
     status = models.BooleanField(default=False, verbose_name='completada')
 
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='created_tasks',
+        verbose_name='Autor de la tarea',
+        null=True,
+        blank=True
+    )
+
     students = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='tasks_as_student',

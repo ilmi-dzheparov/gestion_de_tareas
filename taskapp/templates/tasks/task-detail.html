@@ -73,7 +73,7 @@
                  </p>
 
                 <br>
-                {% if request.user.is_student %}
+                {% if task.author == request.user %}
                 <div class="d-flex justify-content-center fw-bold mx-1">
                     <a href="/tasks/{{ object.pk }}/edit/" class="btn btn-primary mx-1 btn-sm">Editar</a>
                     <a href="/tasks/{{ object.pk }}/delete/" class="btn btn-danger mx-1 btn-sm">Eliminar</a>

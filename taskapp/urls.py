@@ -14,6 +14,7 @@ from .views import (
     StageUpdateView,
     StageDeleteView,
     StatisticView,
+    load_students,
 )
 #
 #
@@ -46,4 +47,5 @@ urlpatterns = [
     path('stages/<int:pk>/edit/', StageUpdateView.as_view(), name='stage_update'),
     path('stages/new/', StageCreateView.as_view(), name='stage_create'),
     path('stages/<int:pk>/delete/', StageDeleteView.as_view(), name='stage_delete'),
+    path('ajax/load-students/', load_students, name='ajax_load_students'),
 ]
