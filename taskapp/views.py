@@ -140,10 +140,18 @@ class TaskCreateView(CreateView):
 
         # Get the group of the currently logged-in user (assuming the user creating
         # the task has a 'group' Foreign Key relationship)
-        user_group = self.request.user.group
-        kwargs['current_user'] = self.request.user
-        kwargs['user_group'] = user_group
-        kwargs['is_tutor'] = self.request.user.is_tutor
+        user = self.request.user
+        kwargs['current_user'] = user
+        kwargs['is_tutor'] = user.is_tutor
+
+        if hasattr(user, 'group') and user.group:
+            kwargs['user_group'] = user.group
+            # Предполагаем, что у модели Group есть поле department
+            kwargs['department'] = user.group.department
+        else:
+            kwargs['user_group'] = None
+            kwargs['department'] = None
+
         return kwargs
 
     def get_context_data(self, **kwargs):

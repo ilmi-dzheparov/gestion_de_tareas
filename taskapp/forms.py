@@ -1,7 +1,7 @@
 import os
 
 from django import forms
-from .models import Task, Stage, TaskFile, StageFile, Group
+from .models import Task, Stage, TaskFile, StageFile, Group, Course
 from myauth.models import User
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_delete
@@ -67,12 +67,20 @@ class TaskForm(forms.ModelForm):
         user_group = kwargs.pop('user_group', None)
         current_user = kwargs.pop('current_user', None)
         is_tutor = kwargs.pop('is_tutor', False)
+        department = kwargs.pop('department', None)
         super(TaskForm, self).__init__(*args, **kwargs)
 
         # 1. Скрываем группу для обычных пользователей
         if not is_tutor:
             if 'group' in self.fields:
                 self.fields.pop('group')
+
+        if department:
+            # Предполагаем, что у модели Course есть связь с Department (например, department=...)
+            self.fields['course'].queryset = Course.objects.filter(department=department)
+        else:
+            # Если у пользователя нет департамента/группы, отдаем пустой список курсов
+            self.fields['course'].queryset = Course.objects.all()
 
 
         # 2. Настройка списка студентов (ГЛАВНОЕ ИСПРАВЛЕНИЕ ТУТ)
