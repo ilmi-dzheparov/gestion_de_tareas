@@ -51,7 +51,7 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        # Filtramos: tareas donde es tutor O tareas donde está en el ManyToMany de alumnos
+        # Filtramos: tareas donde es tutor o tareas donde está en el ManyToMany de alumnos
         return Task.objects.filter(
             Q(tutor=user) | Q(students=user),
             status=False
@@ -63,12 +63,13 @@ class TasksListView(ListView): #(PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        # Дополнительно передаем завершенные задачи в этот же шаблон
+        # Adicionalmente pasamos las tareas completadas a este mismo de plantilla
         context['completed_tasks'] = Task.objects.filter(
             Q(tutor=user) | Q(students=user),
             status=True
         ).distinct().order_by('-end_date')
-        context['now'] = timezone.now()  # Передаем текущее время
+        # Pasamos la fecha y hora actual para controles en el frontend
+        context['now'] = timezone.now()
         return context
 
 class TasksCompletedListView(ListView): #(PermissionRequiredMixin, ListView):
@@ -116,7 +117,6 @@ class TaskDetailView(FormMixin, DetailView):
                                .select_related('user').order_by('-uploaded_at'))
         context['now'] = timezone.now()
         return context
-
 
 def load_students(request):
     group_id = request.GET.get('group_id')

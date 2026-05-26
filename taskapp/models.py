@@ -30,7 +30,6 @@ class Course(models.Model):
     Asignaturas específicas vinculadas a un departamento.
     Es el nexo de unión con el modelo Task (Tarea).
     """
-
     name = models.CharField(max_length=100, unique=True, verbose_name="Nombre del Curso")
     name_short = models.CharField(max_length=100, unique=True, verbose_name="Código/Siglas")
     department = models.ForeignKey(Department, on_delete=models.PROTECT, verbose_name="Departamento")
